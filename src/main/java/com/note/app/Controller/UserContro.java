@@ -6,11 +6,10 @@ import com.note.app.Repository.UserRepo;
 import com.note.app.exception.UserNotException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-    @CrossOrigin
+@RequestMapping("/user/")
 public class UserContro {
     @Autowired
     private UserRepo userRepo;
@@ -49,4 +48,8 @@ public class UserContro {
         return "User Deleted Successes";
     }
 
+    @GetMapping("/user/name/{username}")
+    User getuserByuserName(@PathVariable String username){
+        return userRepo.findByName(username);
+    }
 }

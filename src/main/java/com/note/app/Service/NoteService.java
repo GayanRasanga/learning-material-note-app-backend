@@ -31,22 +31,16 @@ public class NoteService {
 
     private Logger logger = LoggerFactory.getLogger(NoteService.class);
 
-    public Note save (MultipartFile[] files ,String title, String description) throws IOException {
+    public Note save (MultipartFile[] files ,String title, String description ,String foldepth) throws IOException {
         Note note = new Note();
         List<Document> documentList = new ArrayList<>();
         Arrays.stream(files).forEach(multipartFile -> {
-               Document document = new Document();
-
-            try {
-                document.setFile(multipartFile.getBytes());
+                Document document = new Document();
                 document.setDSize(multipartFile.getSize());
                 document.setDType(multipartFile.getContentType());
                 document.setUploadTime(new Date());
-                document.setDName(multipartFile.getOriginalFilename());
+                document.setDName("/files/"+multipartFile.getOriginalFilename());
                 documentList.add(document);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         });
         note.setDocuments(documentList);
         note.setDate(new Date());

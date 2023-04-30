@@ -24,7 +24,4 @@ public class Document {
     private  long dSize;
     @Column(name="upload_Time")
     private Date uploadTime;
-    @Lob
-    private byte[] file;
-
 }

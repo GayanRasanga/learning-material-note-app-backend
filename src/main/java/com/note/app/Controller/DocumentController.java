@@ -1,51 +1,43 @@
 package com.note.app.Controller;
 
-import com.note.app.Model.Document;
+
 import com.note.app.Model.Note;
-import com.note.app.Repository.DocumentRepo;
 import com.note.app.Service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@CrossOrigin("/")
 public class DocumentController {
+
+
+    private String FOLDER_PATH = "E:/AFSD Project Note App/Backend/learning_material_note_app/src/main/resources/static/files/";
 
 
     @Autowired
     private NoteService document;
-    private Note attach = null;
-
-
 
     @PostMapping("/upload")
-    public ResponseEntity<String> uploadfile(@RequestParam("images") MultipartFile[] file, @RequestParam ("title") String title,@RequestParam ("description") String description) throws IOException {
-        String downloadURl = "";
-        attach = document.save(file,title,description);
-        downloadURl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/download/")
-                .path(attach.getDocuments().stream().map(Document::getDName).toString())
-                .toUriString();
-          return ResponseEntity.ok("file uploaded"+downloadURl);
-    }
-    @GetMapping("/download/{fileId}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) throws Exception {
-            Document att = null;
-                      att = document.getAttachment(fileId);
-               return  ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(att.getDType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + att.getDName()+"\"")
-                .body(new ByteArrayResource(att.getFile()));
+    public ResponseEntity<String> uploadfile(@RequestParam("images") MultipartFile[] file,
+                                             @RequestParam ("title") String title,
+                                             @RequestParam ("description") String description) throws IOException {
+        Note attach = document.save(file,title,description,FOLDER_PATH);
+        Arrays.stream(file).forEach(multipartFile -> {
+            String downloadURl = FOLDER_PATH+multipartFile.getOriginalFilename();
+            try {
+                multipartFile.transferTo(new File(downloadURl));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return ResponseEntity.ok("Upload Sucsses..");
     }
 
     @GetMapping("/getNotes")
